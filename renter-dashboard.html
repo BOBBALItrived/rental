@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renter Dashboard – HydRooms</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><a href="index.html" style="color:white"><i class="fa-solid fa-house-chimney"></i> HydRooms</a></div>
+  <button class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="search.html">Search Rooms</a></li>
+    <li><a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+  </ul>
+</nav>
+
+<div class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h2>🔍 Renter Dashboard</h2>
+      <p style="color:#64748b;" id="welcomeMsg">Welcome back!</p>
+    </div>
+    <a href="search.html" class="btn-sm"><i class="fa-solid fa-magnifying-glass"></i> Browse All Rooms</a>
+  </div>
+
+  <div class="search-filters" style="margin-bottom:24px;">
+    <div class="filter-group">
+      <label>Area</label>
+      <select id="fArea" class="area-select" onchange="filterRooms()"><option value="">All Areas</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Type</label>
+      <select id="fType" onchange="filterRooms()">
+        <option value="">All Types</option>
+        <option>Single Room</option><option>Double Room</option>
+        <option>1 BHK</option><option>2 BHK</option><option>PG / Hostel</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Budget</label>
+      <select id="fBudget" onchange="filterRooms()">
+        <option value="">Any Budget</option>
+        <option value="0-5000">Under ₹5,000</option>
+        <option value="5000-10000">₹5,000 – ₹10,000</option>
+        <option value="10000-20000">₹10,000 – ₹20,000</option>
+        <option value="20000+">Above ₹20,000</option>
+      </select>
+    </div>
+  </div>
+
+  <p class="results-info" id="renterInfo"></p>
+  <div class="rooms-grid" id="renterGrid"></div>
+  <div class="empty-state" id="renterEmpty" style="display:none">
+    <i class="fa-solid fa-house-circle-xmark"></i>
+    <h3>No Rooms Found</h3><p>Try different filters.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeContact()">✕</button>
+    <h3><i class="fa-solid fa-phone" style="color:#2563eb"></i> Owner Contact Info</h3>
+    <div id="contactModalBody"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const sess = getSession();
+    if (!sess || sess.role !== 'renter') {
+      alert('Please login as a renter first!');
+      window.location.href = 'login.html?role=renter'; return;
+    }
+    document.getElementById('welcomeMsg').textContent = `Welcome, ${sess.name} 👋  — Find your perfect room below!`;
+    setTimeout(filterRooms, 50);
+  });
+
+  function filterRooms() {
+    const area   = document.getElementById('fArea').value;
+    const type   = document.getElementById('fType').value;
+    const budget = document.getElementById('fBudget').value;
+    let rooms = getRooms().filter(r => r.available);
+    if (area)   rooms = rooms.filter(r => r.area === area);
+    if (type)   rooms = rooms.filter(r => r.type === type);
+    if (budget) {
+      if (budget === '20000+') rooms = rooms.filter(r => r.price > 20000);
+      else { const [lo,hi] = budget.split('-').map(Number); rooms = rooms.filter(r => r.price>=lo && r.price<=hi); }
+    }
+    const grid  = document.getElementById('renterGrid');
+    const empty = document.getElementById('renterEmpty');
+    const info  = document.getElementById('renterInfo');
+    if (rooms.length === 0) {
+      grid.innerHTML = ''; empty.style.display = 'block'; info.textContent = 'No rooms match your filters.';
+    } else {
+      empty.style.display = 'none';
+      info.textContent = `${rooms.length} room${rooms.length>1?'s':''} available in Hyderabad`;
+      grid.innerHTML = rooms.map(r => buildRoomCard(r,'renter')).join('');
+    }
+  }
+
+  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+</script>
+</body>
+</html>

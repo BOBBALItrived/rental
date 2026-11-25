@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HydRooms – Rooms for Rent in Hyderabad</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><i class="fa-solid fa-house-chimney"></i> HydRooms</div>
+  <button class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="search.html">Search Rooms</a></li>
+    <li><a href="login.html?role=renter">Renter Login</a></li>
+    <li><a href="login.html?role=owner">Owner Login</a></li>
+    <li id="navLogout" style="display:none"><a href="#" onclick="logout()">Logout</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Find Your Perfect Room in <span class="highlight">Hyderabad</span></h1>
+    <p>Search from hundreds of rooms across all major Hyderabad areas — affordable, verified, and easy to book.</p>
+    <div class="search-box">
+      <select id="areaSelect" class="area-select"><option value="">All Areas</option></select>
+      <select id="typeSelect">
+        <option value="">Room Type</option>
+        <option>Single Room</option><option>Double Room</option>
+        <option>1 BHK</option><option>2 BHK</option><option>PG / Hostel</option>
+      </select>
+      <select id="budgetSelect">
+        <option value="">Budget</option>
+        <option value="0-5000">Under ₹5,000</option>
+        <option value="5000-10000">₹5,000 – ₹10,000</option>
+        <option value="10000-20000">₹10,000 – ₹20,000</option>
+        <option value="20000+">Above ₹20,000</option>
+      </select>
+      <button onclick="goSearch()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <h2>Why Choose HydRooms?</h2>
+  <div class="feature-grid">
+    <div class="feature-card"><i class="fa-solid fa-shield-halved"></i><h3>Verified Listings</h3><p>All rooms posted by verified owners. No fake listings.</p></div>
+    <div class="feature-card"><i class="fa-solid fa-mobile-screen"></i><h3>Mobile Friendly</h3><p>Search and book rooms easily from phone, tablet or laptop.</p></div>
+    <div class="feature-card"><i class="fa-solid fa-location-dot"></i><h3>All Hyd Areas</h3><p>100+ areas of Hyderabad covered — from Hitech City to Old City.</p></div>
+    <div class="feature-card"><i class="fa-solid fa-indian-rupee-sign"></i><h3>Best Prices</h3><p>Compare prices and find rooms that fit your budget.</p></div>
+  </div>
+</section>
+
+<section class="areas-section">
+  <h2>Popular Areas in Hyderabad</h2>
+  <div class="area-grid">
+    <div class="area-card" onclick="searchArea('Hitech City')">🏙️ Hitech City</div>
+    <div class="area-card" onclick="searchArea('Gachibowli')">🏗️ Gachibowli</div>
+    <div class="area-card" onclick="searchArea('Madhapur')">🌆 Madhapur</div>
+    <div class="area-card" onclick="searchArea('Ameerpet')">🏫 Ameerpet</div>
+    <div class="area-card" onclick="searchArea('Kukatpally')">🏘️ Kukatpally</div>
+    <div class="area-card" onclick="searchArea('Banjara Hills')">🌳 Banjara Hills</div>
+    <div class="area-card" onclick="searchArea('Secunderabad')">🚂 Secunderabad</div>
+    <div class="area-card" onclick="searchArea('Kondapur')">🏢 Kondapur</div>
+    <div class="area-card" onclick="searchArea('Jubilee Hills')">⭐ Jubilee Hills</div>
+    <div class="area-card" onclick="searchArea('Miyapur')">🚇 Miyapur</div>
+    <div class="area-card" onclick="searchArea('Dilsukhnagar')">🏪 Dilsukhnagar</div>
+    <div class="area-card" onclick="searchArea('LB Nagar')">🏬 LB Nagar</div>
+    <div class="area-card" onclick="searchArea('Kompally')">🌿 Kompally</div>
+    <div class="area-card" onclick="searchArea('Uppal')">🏭 Uppal</div>
+    <div class="area-card" onclick="searchArea('Manikonda')">🏠 Manikonda</div>
+    <div class="area-card" onclick="searchArea('Narsingi')">🌅 Narsingi</div>
+    <div class="area-card" onclick="searchArea('ECIL')">🔬 ECIL</div>
+    <div class="area-card" onclick="searchArea('Mehdipatnam')">🕌 Mehdipatnam</div>
+    <div class="area-card" onclick="searchArea('Bachupally')">🌾 Bachupally</div>
+    <div class="area-card" onclick="searchArea('Kokapet')">🏙️ Kokapet</div>
+    <div class="area-card" onclick="searchArea('Film Nagar')">🎬 Film Nagar</div>
+    <div class="area-card" onclick="searchArea('Khairatabad')">🏛️ Khairatabad</div>
+    <div class="area-card" onclick="searchArea('Sainikpuri')">🪖 Sainikpuri</div>
+    <div class="area-card" onclick="searchArea('Old City')">🕌 Old City</div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-box renter-cta">
+    <i class="fa-solid fa-person-walking-luggage fa-2x"></i>
+    <h3>Looking for a Room?</h3>
+    <p>Register as a Renter and start searching today!</p>
+    <a href="register.html?role=renter" class="btn-white">Register as Renter</a>
+  </div>
+  <div class="cta-box owner-cta">
+    <i class="fa-solid fa-key fa-2x"></i>
+    <h3>Have a Room to Rent?</h3>
+    <p>Register as an Owner and post your rooms for free!</p>
+    <a href="register.html?role=owner" class="btn-white">Register as Owner</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>© 2026 HydRooms — Rooms for Rent in Hyderabad &nbsp;|&nbsp; <a href="mailto:support@hydrooms.in">support@hydrooms.in</a></p>
+</footer>
+
+<script src="app.js"></script>
+<script>
+  function goSearch() {
+    const area   = document.getElementById('areaSelect').value;
+    const type   = document.getElementById('typeSelect').value;
+    const budget = document.getElementById('budgetSelect').value;
+    window.location.href = `search.html?area=${encodeURIComponent(area)}&type=${encodeURIComponent(type)}&budget=${encodeURIComponent(budget)}`;
+  }
+  function searchArea(area) { window.location.href = `search.html?area=${encodeURIComponent(area)}`; }
+  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+</script>
+</body>
+</html>

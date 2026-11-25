@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Dashboard – HydRooms</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><a href="index.html" style="color:white"><i class="fa-solid fa-house-chimney"></i> HydRooms</a></div>
+  <button class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="search.html">Search Rooms</a></li>
+    <li><a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+  </ul>
+</nav>
+
+<div class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h2>🏠 Owner Dashboard</h2>
+      <p style="color:#64748b;" id="welcomeMsg">Welcome back!</p>
+    </div>
+    <button class="btn-sm" onclick="openModal()"><i class="fa-solid fa-plus"></i> Post New Room</button>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-my"  onclick="showTab('my')">My Listings</button>
+    <button class="tab-btn"        id="tab-all" onclick="showTab('all')">All Rooms</button>
+  </div>
+  <p class="results-info" id="dashInfo"></p>
+  <div class="rooms-grid" id="ownerGrid"></div>
+  <div class="empty-state" id="ownerEmpty" style="display:none">
+    <i class="fa-solid fa-house-circle-exclamation"></i>
+    <h3>No Listings Yet</h3>
+    <p>Post your first room using the button above!</p>
+  </div>
+</div>
+
+<!-- POST ROOM MODAL -->
+<div class="modal-overlay" id="postModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3><i class="fa-solid fa-plus-square" style="color:#2563eb"></i> Post a New Room</h3>
+    <div class="msg" id="postMsg"></div>
+    <form onsubmit="postRoom(event)">
+      <div class="form-group">
+        <label>Room Title</label>
+        <input type="text" id="pTitle" placeholder="e.g. Spacious 1 BHK near Metro" required />
+      </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-map-marker-alt" style="color:#2563eb"></i> Full Address</label>
+        <input type="text" id="pAddress" placeholder="e.g. Plot 12, KPHB Colony Phase 3, Kukatpally" required />
+      </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-thumbtack" style="color:#7c3aed"></i> Nearby Landmark</label>
+        <input type="text" id="pLandmark" placeholder="e.g. Near Metro Station, Opposite Big Bazar" />
+      </div>
+      <div class="form-group">
+        <label>Area</label>
+        <select id="pArea" class="area-select" required><option value="">Select Area</option></select>
+      </div>
+      <div class="form-group">
+        <label>Room Type</label>
+        <select id="pType" required>
+          <option value="">Select Type</option>
+          <option>Single Room</option><option>Double Room</option>
+          <option>1 BHK</option><option>2 BHK</option><option>PG / Hostel</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Monthly Rent (₹)</label>
+        <input type="number" id="pPrice" placeholder="e.g. 8000" min="500" required />
+      </div>
+      <div class="form-group">
+        <label>Furnishing</label>
+        <select id="pFurnish" required>
+          <option value="">Select</option>
+          <option>Fully Furnished</option><option>Semi-Furnished</option>
+          <option>Furnished</option><option>Unfurnished</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Amenities (comma-separated)</label>
+        <input type="text" id="pAmenities" placeholder="WiFi, AC, Parking, Water" />
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="pDesc" placeholder="Describe the room, nearby landmarks, etc."></textarea>
+      </div>
+      <button type="submit" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> Post Room</button>
+    </form>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeContact()">✕</button>
+    <h3><i class="fa-solid fa-phone" style="color:#2563eb"></i> Owner Contact Info</h3>
+    <div id="contactModalBody"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  let currentSession = null;
+  let activeTab = 'my';
+
+  window.addEventListener('DOMContentLoaded', () => {
+    currentSession = getSession();
+    if (!currentSession || currentSession.role !== 'owner') {
+      alert('Please login as an owner first!');
+      window.location.href = 'login.html?role=owner'; return;
+    }
+    document.getElementById('welcomeMsg').textContent = `Welcome, ${currentSession.name} 👋`;
+    renderRooms();
+  });
+
+  function showTab(tab) {
+    activeTab = tab;
+    document.getElementById('tab-my').classList.toggle('active',  tab==='my');
+    document.getElementById('tab-all').classList.toggle('active', tab==='all');
+    renderRooms();
+  }
+
+  function renderRooms() {
+    let rooms = getRooms();
+    if (activeTab === 'my') rooms = rooms.filter(r => r.ownerId === currentSession.id);
+    const grid  = document.getElementById('ownerGrid');
+    const empty = document.getElementById('ownerEmpty');
+    const info  = document.getElementById('dashInfo');
+    if (rooms.length === 0) {
+      grid.innerHTML = ''; empty.style.display = 'block'; info.textContent = '';
+    } else {
+      empty.style.display = 'none';
+      info.textContent = `${rooms.length} room${rooms.length>1?'s':''} ${activeTab==='my'?'posted by you':'in Hyderabad'}`;
+      grid.innerHTML = rooms.map(r => buildRoomCard(r, activeTab==='my'?'owner':'renter')).join('');
+    }
+  }
+
+  function deleteRoom(id) {
+    if (!confirm('Delete this listing?')) return;
+    saveRooms(getRooms().filter(r => r.id !== id));
+    renderRooms();
+  }
+
+  function openModal()  { document.getElementById('postModal').classList.add('show'); }
+  function closeModal() { document.getElementById('postModal').classList.remove('show'); }
+
+  function postRoom(e) {
+    e.preventDefault();
+    const room = {
+      id:         'r' + Date.now(),
+      ownerId:    currentSession.id,
+      ownerName:  currentSession.name,
+      ownerPhone: currentSession.phone,
+      ownerEmail: currentSession.email,
+      title:      document.getElementById('pTitle').value.trim(),
+      address:    document.getElementById('pAddress').value.trim(),
+      landmark:   document.getElementById('pLandmark').value.trim(),
+      area:       document.getElementById('pArea').value,
+      type:       document.getElementById('pType').value,
+      price:      Number(document.getElementById('pPrice').value),
+      furnishing: document.getElementById('pFurnish').value,
+      amenities:  document.getElementById('pAmenities').value,
+      description:document.getElementById('pDesc').value.trim(),
+      available:  true,
+      postedOn:   new Date().toISOString().split('T')[0],
+    };
+    const rooms = getRooms();
+    rooms.unshift(room);
+    saveRooms(rooms);
+    showMsg('postMsg','success','Room posted successfully!');
+    document.querySelector('#postModal form').reset();
+    setTimeout(() => { closeModal(); renderRooms(); }, 1200);
+  }
+
+  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+</script>
+</body>
+</html>
